@@ -1,0 +1,255 @@
+/* --- GLOBAL DASHBOARD STYLES (Updated to Red Theme) --- */
+.dashboard-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.header {
+  background: #b31f24; /* Agribank Red */
+  color: white;
+  padding: 15px 0;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.header-content h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.header-actions {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.user-name {
+  color: white;
+  font-size: 14px;
+}
+
+.logout-btn {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid white;
+  padding: 6px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.nav-tabs {
+  background: white;
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.nav-tab {
+  background: none;
+  border: none;
+  padding: 12px 20px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  color: #666;
+  border-bottom: 3px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.nav-tab:hover {
+  color: #333;
+}
+
+.nav-tab.active {
+  color: #b31f24;
+  border-bottom-color: #b31f24;
+}
+
+.main-content {
+  flex: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  width: 100%;
+}
+
+.upload-card {
+  background: white;
+  border-radius: 4px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e5e5;
+}
+
+/* --- NEW FORM STYLES (Matching the Image exactly) --- */
+.agri-form-wrapper {
+  font-size: 13px;
+  color: #333;
+}
+
+.agri-warning {
+  color: #b31f24;
+  font-style: italic;
+  margin-bottom: 15px;
+}
+
+.agri-section-title {
+  font-weight: bold;
+  font-size: 14px;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 5px;
+  margin: 20px 0 15px 0;
+  color: #000;
+}
+
+.agri-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px;
+  margin-bottom: 20px;
+}
+
+.agri-col {
+  flex: 1;
+  min-width: 350px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.agri-form-group {
+  display: flex;
+  align-items: center;
+}
+
+.agri-form-group label {
+  width: 150px;
+  color: #333;
+}
+
+.agri-form-group .req {
+  color: #b31f24;
+}
+
+.agri-input {
+  flex: 1;
+  padding: 4px 8px;
+  border: 1px solid #a9a9a9;
+  border-radius: 2px;
+  font-size: 13px;
+  outline: none;
+  background-color: #fcfcfc;
+}
+
+.agri-input:focus {
+  border-color: #66afe9;
+  background-color: #fff;
+}
+
+.agri-input[disabled] {
+  background-color: #f0f0f0;
+  color: #666;
+}
+
+.agri-block-group {
+  margin-bottom: 15px;
+}
+
+.agri-block-group label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.agri-block-group .req {
+  color: #b31f24;
+}
+
+.agri-block-input {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #a9a9a9;
+  border-radius: 2px;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+
+.agri-textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.agri-file-section {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px dotted #ccc;
+}
+
+.file-btn-wrapper {
+  position: relative;
+  overflow: hidden;
+  display: inline-block;
+}
+
+.btn-add-file {
+  background-color: #00b0f0;
+  color: white;
+  border: none;
+  padding: 5px 15px;
+  font-size: 12px;
+  cursor: pointer;
+  border-radius: 2px;
+}
+
+.file-btn-wrapper input[type=file] {
+  font-size: 100px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.action-btn-submit {
+  background-color: #b31f24;
+  color: white;
+  border: none;
+  padding: 8px 30px;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 3px;
+  margin-top: 20px;
+}
+
+.action-btn-submit:hover {
+  background-color: #8a151b;
+}
+
+/* Post Cards & Messages */
+.success { color: #388e3c; background-color: #e8f5e9; padding: 10px; border-left: 4px solid #388e3c; margin-top: 15px;}
+.error { color: #d32f2f; background-color: #ffebee; padding: 10px; border-left: 4px solid #d32f2f; margin-top: 15px;}
