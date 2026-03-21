@@ -10,40 +10,37 @@ export const Users = () => {
   const [message, setMessage] = useState('')
   const [editingId, setEditingId] = useState(null)
   const [selectedUser, setSelectedUser] = useState(null)
-  // --- NEW: Pagination State ---
+  
   const [pagination, setPagination] = useState({
     page: 1,
-    size: 10, // Set your desired page size here
+    size: 10,
     totalPages: 0,
     totalElements: 0
   })
 
+  // --- UPDATED: Added fullName to form state ---
   const [formData, setFormData] = useState({
     username: '',
+    fullName: '',
     password: '',
     role: 'ROLE_USER',
   })
 
-  // Load page 1 on mount
   useEffect(() => {
     loadUsers(1) 
   }, [])
 
-  // --- UPDATED: Load Users with Page Number ---
   const loadUsers = async (page = 1) => {
     setLoading(true)
-    
-    // Pass searchName (from state) and the requested page
     const result = await userService.searchUsers(searchName, page, pagination.size)
     
     if (result.success) {
       const { content, totalPages, totalElements, pageNumber } = result.data
       
       setUsers(content || [])
-      // Update pagination state
       setPagination(prev => ({
         ...prev,
-        page: pageNumber, // Ensure sync with backend (1-based)
+        page: pageNumber,
         totalPages,
         totalElements
       }))
@@ -53,13 +50,10 @@ export const Users = () => {
     setLoading(false)
   }
 
-  // --- UPDATED: Search Reset ---
   const handleSearch = () => {
-    // When searching, always reset to Page 1
     loadUsers(1)
   }
 
-  // --- NEW: Change Page Handler ---
   const changePage = (newPage) => {
     if (newPage < 1 || newPage > pagination.totalPages) return
     loadUsers(newPage)
@@ -67,48 +61,47 @@ export const Users = () => {
 
   const handleCreateClick = () => {
     setEditingId(null)
-    setFormData({ username: '', password: '', role: 'ROLE_USER' })
+    // --- UPDATED: Reset fullName when opening create form ---
+    setFormData({ fullName: '', username: '', password: '', role: 'ROLE_USER' })
     setShowCreateForm(true)
   }
 
   const handleRowClick = async (userId) => {
-    // 1. Fetch full details from API
     const result = await userService.getUserDetail(userId)
     if (result.success) {
       setSelectedUser(result.data)
+ 
     } else {
       setMessage(`Error loading details: ${result.error}`)
     }
   }
 
   const handleEditClick = async (userId) => {
-  const result = await userService.getUserDetail(userId);
+    const result = await userService.getUserDetail(userId);
 
-  // 1. Check if the call was actually successful
-  if (result.success && result.data) {
-   
-    const userData = result.data; // Now we know this isn't undefined
+    if (result.success && result.data) {
+      const userData = result.data;
 
-    // 2. Normalize role safely using optional chaining (?)
-    const rawRole = userData.roleName || userData.role?.name || userData.role || "";
-    console.log(rawRole)
-    const normalizedRole = rawRole
-      ? rawRole.startsWith("ROLE_") ? rawRole : `ROLE_${rawRole}`
-      : "ROLE_USER";
+      const rawRole = userData.roleName || userData.role?.name || userData.role || "";
+      console.log(rawRole)
+      const normalizedRole = rawRole
+        ? rawRole.startsWith("ROLE_") ? rawRole : `ROLE_${rawRole}`
+        : "ROLE_USER";
 
-    setFormData({
-      username: userData.username,
-      password: "",
-      role: normalizedRole,
-    });
+      // --- UPDATED: Populate fullName when editing ---
+      setFormData({
+        username: userData.username,
+        password: "",
+        fullName: userData.fullName || "",
+        role: normalizedRole,
+      });
 
-    setEditingId(userId);
-    setShowCreateForm(true);
-  } else {
-    // 3. Show the actual error message (likely "Forbidden" or "Access Denied")
-    setMessage(`Lỗi: ${result.error}`);
-  }
-};
+      setEditingId(userId);
+      setShowCreateForm(true);
+    } else {
+      setMessage(`Lỗi: ${result.error}`);
+    }
+  };
 
   const handleFormChange = (e) => {
     const { name, value } = e.target
@@ -119,7 +112,6 @@ export const Users = () => {
     e.preventDefault()
     console.log("[v0] Form submitted with data:", formData)
     
-    // Convert role format for backend
     const roleToSend = formData.role.replace('ROLE_', '')
     const submitData = {
       ...formData,
@@ -138,7 +130,6 @@ export const Users = () => {
     if (result.success) {
       setMessage(editingId ? 'User updated successfully!' : 'User created successfully!')
       setShowCreateForm(false)
-      // Reload current page to see changes
       loadUsers(pagination.page) 
       setTimeout(() => setMessage(''), 3000)
     } else {
@@ -151,8 +142,8 @@ export const Users = () => {
     <div className="users-container">
       <div className="users-header">
         <h2>User Management</h2>
-        <button onClick={handleCreateClick} className="create-btn">
-          Create New User
+        <button onClick={handleCreateClick} className="btn btn-primary">
+          Thêm người dùng 
         </button>
       </div>
 
@@ -164,8 +155,8 @@ export const Users = () => {
           onChange={(e) => setSearchName(e.target.value)}
           className="search-input"
         />
-        <button onClick={handleSearch} className="search-btn">
-          Search
+        <button onClick={handleSearch} className="btn btn-primary">
+          Tìm kiếm
         </button>
       </div>
 
@@ -176,6 +167,20 @@ export const Users = () => {
           <div className="form-card">
             <h3>{editingId ? 'Edit User' : 'Create New User'}</h3>
             <form onSubmit={handleSubmit}>
+              
+              {/* --- UPDATED: Full Name input with correct 'name' attribute --- */}
+              <div className="form-group">
+                <label>Full Name</label>
+                <input
+                  type="text"
+                  name="fullName" 
+                  value={formData.fullName}
+                  onChange={handleFormChange}
+                  required
+                  className="form-input"
+                />
+              </div>
+
               <div className="form-group">
                 <label>Username</label>
                 <input
@@ -187,6 +192,7 @@ export const Users = () => {
                   className="form-input"
                 />
               </div>
+              
               <div className="form-group">
                 <label>Password {editingId && '(leave empty to keep current)'}</label>
                 <input
@@ -200,6 +206,7 @@ export const Users = () => {
                   placeholder="Min 8 characters"
                 />
               </div>
+              
               <div className="form-group">
                 <label>Role</label>
                 <select name="role" value={formData.role} onChange={handleFormChange} className="form-input">
@@ -207,6 +214,7 @@ export const Users = () => {
                   <option value="ROLE_ADMIN">Admin</option>
                 </select>
               </div>
+
               <div className="form-actions">
                 <button type="submit" className="submit-btn">
                   {editingId ? 'Update' : 'Create'}
@@ -226,22 +234,26 @@ export const Users = () => {
 
       {selectedUser && (
         <div className="form-container" onClick={() => setSelectedUser(null)}> 
-          {/* Clicking background closes modal */}
           <div className="form-card" onClick={(e) => e.stopPropagation()}>
             <h3>User Details</h3>
             <div className="detail-row">
               <strong>ID:</strong> <span>{selectedUser.id}</span>
+            </div>
+            {/* --- UPDATED: Display Full Name in details modal --- */}
+            <div className="detail-row">
+              <strong>Full Name:</strong> <span>{selectedUser.fullName}</span>
             </div>
             <div className="detail-row">
               <strong>Username:</strong> <span>{selectedUser.username}</span>
             </div>
             <div className="detail-row">
               <strong>Role:</strong> 
-              <span className={`role-badge ${selectedUser.role?.name === 'ADMIN' ? 'admin' : 'user'}`}>
-                {selectedUser.role?.name || selectedUser.role}
+           <span className={`role-badge ${
+                (selectedUser.roleName || selectedUser.role?.name || '') === 'ADMIN' ? 'admin' : 'user'
+              }`}>
+                {selectedUser.roleName || selectedUser.role?.name || selectedUser.role || 'No Role'}
               </span>
             </div>
-            {/* Display CreatedAt if your backend sends it */}
             {selectedUser.createdAt && (
               <div className="detail-row">
                  <strong>Joined:</strong> <span>{new Date(selectedUser.createdAt).toLocaleString()}</span>
@@ -269,6 +281,8 @@ export const Users = () => {
             <table className="users-table">
               <thead>
                 <tr>
+                  {/* --- UPDATED: Added Full Name column header --- */}
+                  <th>Full Name</th>
                   <th>Username</th>
                   <th>Role</th>
                   <th>Actions</th>
@@ -277,12 +291,13 @@ export const Users = () => {
               <tbody>
                 {users.map((user) => (
                   <tr key={user.id}>
+                    {/* --- UPDATED: Added Full Name cell --- */}
+                    <td>{user.fullName}</td>
                     <td>{user.username}</td>
-                    {/* Safe check in case role is string or object */}
-                    <td>{user.role?.name || user.role}</td>
+                    <td>{user.roleName || user.role?.name || user.role || 'No Role'}</td>
                     <td>
-                      <button onClick={() => handleEditClick(user.id)} className="edit-btn">
-                        Edit
+                      <button onClick={() => handleEditClick(user.id)} className="btn btn-primary">
+                        Chỉnh sửa
                       </button>
                     </td>
                   </tr>
@@ -290,15 +305,14 @@ export const Users = () => {
               </tbody>
             </table>
 
-            {/* --- NEW: Pagination Controls --- */}
             <div className="pagination-controls" style={{ display: 'flex', justifyContent: 'center', gap: '15px', marginTop: '20px', alignItems: 'center' }}>
               <button 
-                className="action-btn outline" // Ensure you have this class or use a standard button style
+                className="action-btn outline"
                 style={{ padding: '5px 10px', cursor: 'pointer' }}
                 disabled={pagination.page === 1}
                 onClick={() => changePage(pagination.page - 1)}
               >
-                Previous
+                Quay lại
               </button>
               
               <span>
@@ -311,7 +325,7 @@ export const Users = () => {
                 disabled={pagination.page >= pagination.totalPages}
                 onClick={() => changePage(pagination.page + 1)}
               >
-                Next
+                Tiếp theo
               </button>
             </div>
           </>

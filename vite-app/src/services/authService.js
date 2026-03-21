@@ -17,6 +17,16 @@ const decodeToken = (token) => {
   }
 }
 
+const isTokenValid = (token) => {
+  if (!token) return false
+  const decoded = decodeToken(token)
+  if (!decoded || !decoded.exp) return false
+  
+  // JWT exp is in seconds, Date.now() is in milliseconds
+  // We check if the current time is less than the expiration time
+  return (decoded.exp * 1000) > Date.now()
+}
+
 export const authService = {
   login: async (username, password) => {
     try {
@@ -91,21 +101,29 @@ export const authService = {
     }
   },
 
-  getCurrentUser: () => {
-    return {
-      userId: localStorage.getItem('userId'),
-      username: localStorage.getItem('username'),
-      role: localStorage.getItem('userRole'),
-      accessToken: localStorage.getItem('accessToken'),
+getCurrentUser: () => {
+    const token = localStorage.getItem('accessToken')
+    
+    if (token && isTokenValid(token)) {
+      return {
+        userId: localStorage.getItem('userId'),
+        username: localStorage.getItem('username'),
+        role: localStorage.getItem('userRole'),
+        accessToken: token,
+      }
     }
+    
+    return {} // Return empty object if expired/missing
   },
 
   isAuthenticated: () => {
-    return !!localStorage.getItem('accessToken')
+    const token = localStorage.getItem('accessToken')
+    return isTokenValid(token)
   },
 
   isAdmin: () => {
     const role = localStorage.getItem('userRole')
-    return role === 'ROLE_ADMIN'
+    const token = localStorage.getItem('accessToken')
+    return isTokenValid(token) && role === 'ROLE_ADMIN' // --- UPDATED ---
   },
 }

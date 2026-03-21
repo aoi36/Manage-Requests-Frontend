@@ -122,7 +122,12 @@ export const ServiceManagement = () => {
                 type="number"
                 className="form-input"
                 value={formData.displayOrder}
-                onChange={e => setFormData({...formData, displayOrder: e.target.value})}
+                onChange={e => {
+                  const val = e.target.value;
+                  if (val === '' || Number(val) > 0) {
+                    setFormData({...formData, displayOrder: val});
+                  }
+                }}
                 required
               />
             </div>

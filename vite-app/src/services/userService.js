@@ -51,6 +51,7 @@ export const userService = {
       const payload = {
         username: userData.username,
         password: userData.password || undefined,
+        fullName: userData.fullName,
         role: userData.role,
       }
       // Remove undefined password for edit
@@ -71,13 +72,13 @@ export const userService = {
     }
   },
 
-  // Create user - Admin only (from authentication controller)
   createUser: async (userData) => {
     try {
       console.log("[v0] createUser called with data:", userData)
       const response = await api.post('/auth/register', {
         username: userData.username,
         password: userData.password,
+        fullName: userData.fullName,
         role: userData.role,
       })
       return {

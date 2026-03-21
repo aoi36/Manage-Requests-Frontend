@@ -7,12 +7,21 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-
+  const IDLE_TIMEOUT_MS = 900000;
   // Initialize auth state from localStorage
   useEffect(() => {
     const currentUser = authService.getCurrentUser()
-    if (currentUser.accessToken) {
+    if (currentUser && currentUser.accessToken) {
       setUser(currentUser)
+    } else {
+      // If no valid token, ensure localStorage is wiped clean just in case
+      // it was holding onto an expired token.
+      localStorage.removeItem('accessToken')
+      localStorage.removeItem('refreshToken')
+      localStorage.removeItem('userId')
+      localStorage.removeItem('username')
+      localStorage.removeItem('userRole')
+      setUser(null)
     }
     setLoading(false)
   }, [])
@@ -26,6 +35,7 @@ export const AuthProvider = ({ children }) => {
         setUser({
           userId: result.userId,
           username: result.username,
+          fullName: result.fullName,
           role: result.role,
         })
         return { success: true }
@@ -42,11 +52,13 @@ export const AuthProvider = ({ children }) => {
     }
   }, [])
 
-  const logout = useCallback(async () => {
+ const logout = useCallback(async () => {
     setError(null)
     try {
       await authService.logout()
       setUser(null)
+      // Force redirect to login page after logout
+      window.location.href = '/login'
       return { success: true }
     } catch (err) {
       const message = err.message || 'Logout failed'
@@ -54,6 +66,43 @@ export const AuthProvider = ({ children }) => {
       return { success: false, error: message }
     }
   }, [])
+
+  useEffect(() => {
+    // Only track idle time if the user is actually logged in
+    if (!user) return;
+
+    let timeoutId;
+
+    const handleUserActivity = () => {
+      // Clear the old timer
+      if (timeoutId) clearTimeout(timeoutId);
+      
+      // Start a new timer
+      timeoutId = setTimeout(() => {
+        console.log('User has been idle for too long. Auto-logging out...');
+        logout();
+      }, IDLE_TIMEOUT_MS);
+    };
+
+    // List of events that count as "activity"
+    const events = ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart'];
+
+    // Attach the listeners to the browser window
+    events.forEach((event) => {
+      window.addEventListener(event, handleUserActivity);
+    });
+
+    // Start the first timer
+    handleUserActivity();
+
+    // Cleanup listeners when the component unmounts
+    return () => {
+      events.forEach((event) => {
+        window.removeEventListener(event, handleUserActivity);
+      });
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [user, logout]); // Re-run if user status or logout function changes
 
   const refresh = useCallback(async () => {
     setError(null)
